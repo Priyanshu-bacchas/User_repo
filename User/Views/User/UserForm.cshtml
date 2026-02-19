@@ -1,0 +1,221 @@
+﻿
+@{
+    ViewBag.Title = "UserForm";
+}
+
+<h2>UserForm</h2>
+
+<table id="tbl1">
+    <tbody>
+        <tr>
+            <td>User Name :</td>
+            <td>
+                <input type="text" id="txtname" />
+            </td>
+        </tr>
+
+        <tr>
+            <td>User Country :</td>
+            <td>
+                <select id="ddlcountry" onchange="BindStates()">
+                    <option value="0">--Select--</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>User State :</td>
+            <td>
+                <select id="ddlstate" onchange="BindCities()">
+                    <option value="0">--Select--</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>User City :</td>
+            <td>
+                <select id="ddlcity">
+                    <option value="0">--Select--</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" id="btnsubmit" value="Submit" onclick="InsertUpdateData()" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<table id="tbl" border="5" style="background-color:maroon;color:white;width:800px">
+    <tr style="background-color:deepskyblue;height:40px">
+        <th>User Id</th>
+        <th>User Name</th>
+        <th>User Country</th>
+        <th>User State</th>
+        <th>User City</th>
+        <th></th>
+        <th></th>
+    </tr>
+</table>
+
+<script src="~/Scripts/jquery-3.7.0.min.js"></script>
+<script type="text/javascript">
+    var IDD = 0;
+    $(document).ready(function () {
+        ShowData();
+        BindCountries();
+    });
+
+
+    function BindCountries() {
+        $.ajax({
+            url: 'User/CountryGet',
+            type: 'post',
+            data: {},
+            success: function (data) {
+                data = JSON.parse(data);
+                for (var i = 0; i < data.length; i++) {
+                    $("#ddlcountry").append($('<option></option>').html(data[i].cname).val(data[i].cid));
+                }
+            },
+            error: function () {
+                alert('country data not found !!');
+            }
+        });
+    }
+
+
+    function BindStates() {
+        $.ajax({
+            url: 'User/StateGet',
+            type: 'post',
+            data: { cid: $("#ddlcountry").val() },
+            async: false,
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#ddlstate").empty();
+                $("#ddlstate").append($('<option></option>').html("--Select--").val(0));
+                for (var i = 0; i < data.length; i++) {
+                    $("#ddlstate").append($('<option></option>').html(data[i].sname).val(data[i].sid));
+                }
+            },
+            error: function () {
+                alert('state data not found !!');
+            }
+        });
+    }
+
+    function BindCities() {
+        $.ajax({
+            url: 'User/CityGet',
+            type: 'post',
+            data: { sid: $("#ddlstate").val() },
+            async: false,
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#ddlcity").empty();
+                $("#ddlcity").append($('<option></option>').html("--Select--").val(0));
+                for (var i = 0; i < data.length; i++) {
+                    $("#ddlcity").append($('<option></option>').html(data[i].tname).val(data[i].tid));
+                }
+            },
+            error: function () {
+                alert('city data not found !!');
+            }
+        });
+    }
+
+
+    function ShowData() {
+        $.ajax({
+            url: 'User/UserGet',
+            type: 'post',
+            data: {},
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#tbl tbody)").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $("#tbl").append('<tr style="height:40px"> <td>' + data[i].uid + '</td> <td>' + data[i].uname + '</td> <td>' + data[i].ucountry + '</td> <td>' + data[i].ustate + '</td> <td>' + data[i].ucity + '</td> <td style="color:red"><input type="button" id="btndelete" value="Delete" onclick="DeleteData(' + data[i].uid + ')" /></td>  <td style="color:red"><input type="button" id="btnedit" value="Edit" onclick="EditData(' + data[i].uid + ')" /></td> </tr>');
+                }
+            },
+            error: function () {
+                alert('dt not found !!');
+            }
+        });
+    }
+
+
+
+
+    function InsertUpdateData() {
+        $.ajax({
+            url: 'User/InsertUpdateUser',
+            type: 'post',
+            data: { uid: IDD, uname: $("#txtname").val(), ucountry: $("#ddlcountry").val(), ustate: $("#ddlstate").val(), ucity: $("#ddlcity").val() },
+            success: function () {
+                alert('Data Has Been Saved Successfully !!');
+                ShowData();
+                ClearData();
+            },
+            error: function () {
+                alert('Data Has Not Been Saved Successfully !!');
+            }
+        });
+    }
+
+
+
+    function DeleteData(uid) {
+        $.ajax({
+            url: 'User/DeleteUser',
+            type: 'post',
+            data: { uid: uid },
+            success: function () {
+                alert('Data Has Been Deleted Successfully !!');
+                ShowData();
+            },
+            error: function () {
+                alert('Data Has Not Been Deleted Successfully !!');
+            }
+        });
+    }
+
+
+
+    function ClearData() {
+        $("#txtname").val("");
+        $("#ddlcountry").val("0");
+        $("#ddlstate").val("0");
+        $("#ddlcity").val("0");
+        $("#btnsubmit").val("Submit");
+        IDD = 0;
+    }
+
+    function EditData(uid) {
+        $.ajax({
+            url: 'User/UserEdit',
+            type: 'post',
+            data: { uid: uid },
+            async: false,
+            success: function (data) {
+                data = JSON.parse(data);
+                $("#txtname").val(data[0].uname);
+                $("#ddlcountry").val(data[0].ucountry);
+                BindStates();
+                $("#ddlstate").val(data[0].ustate);
+                BindCities();
+                $("#ddlcity").val(data[0].ucity);
+                $("#btnsubmit").val("Update");
+                IDD = uid;
+            },
+            error: function () {
+                alert('Data Not Found !!');
+            }
+        });
+    }
+
+</script>
