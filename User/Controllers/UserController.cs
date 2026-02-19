@@ -11,7 +11,9 @@ using User.Models;
 
 namespace User.Controllers
 {
-      
+    /// <summary>
+    /// /// <summary>
+    /// </summary>
 
     public class UserController : Controller
     {
@@ -79,6 +81,7 @@ namespace User.Controllers
             string data = JsonConvert.SerializeObject(dt);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
 
 
         public JsonResult CountryGet()
