@@ -11,19 +11,7 @@ using User.Models;
 
 namespace User.Controllers
 {
-    /// <summary>
-    /// /// <summary>
     /// </summary>
-
-
-
-
-    ///ygygyjhgjggjhghjh
-    /// nvhjhkhkl
-    /// /gjgmbmjbj
-    /// 
-   
-    //fhfgjh
     public class UserController : Controller
     {
 
